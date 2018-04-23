@@ -1,7 +1,33 @@
+import java.util.Random;
+
 public class Game {
 
+    private long timeStart;
+    public static Random random;
+    public static int SCREEN_WIDTH, SCREEN_HEIGHT;
+
     public Game() {
+        timeStart = System.currentTimeMillis();
+        System.out.println("Game started");
+    }
+
+    private void start() {
         loadResources();
+
+    }
+
+    private void setStaticVariable() {
+        // Guppy static variable
+        Guppy.foodForUpgrade = 1;
+        Guppy.timeForCoin = 5;
+        Guppy.speed = 50;
+        Guppy.price = 200;
+
+        // Piranha static variable
+        Piranha.speed = 60;
+        Piranha.price = 500;
+
+
     }
 
     private void loadResources() {
