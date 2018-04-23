@@ -1,11 +1,19 @@
-import java.awt.EventQueue;
-import javax.swing.JFrame;
+import javax.swing.*;
+import java.awt.*;
 
 public class Engine extends JFrame {
 
-    public Engine() {
+    private Engine() {
 
         initUI();
+    }
+
+    public static void main(String[] args) {
+
+        EventQueue.invokeLater(() -> {
+            Engine ex = new Engine();
+            ex.setVisible(true);
+        });
     }
 
     private void initUI() {
@@ -18,13 +26,5 @@ public class Engine extends JFrame {
         setLocationRelativeTo(null);
         setResizable(false);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-
-    public static void main(String[] args) {
-
-        EventQueue.invokeLater(() -> {
-            Engine ex = new Engine();
-            ex.setVisible(true);
-        });
     }
 }

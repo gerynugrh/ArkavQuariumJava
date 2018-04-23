@@ -1,14 +1,20 @@
-public class AquariumObject {
+import java.awt.image.BufferedImage;
 
-    protected final Aquarium aquarium;
-    protected Position position;
-    protected double timeSpawned, moveDuration, direction;
-    protected int animMode, animFrame;
+abstract class AquariumObject {
 
-    public AquariumObject(Position pos, Aquarium aquarium, double now) {
+    final Aquarium aquarium;
+    Position position;
+    double moveDuration, direction, timeSpawned;
+    int animMode, animFrame;
+
+    AquariumObject(Position pos, Aquarium aquarium, double now) {
         this.position = pos;
         this.aquarium = aquarium;
         timeSpawned = now;
+        animMode = 0;
+        animFrame = 0;
     }
+
+    public abstract BufferedImage getFrame();
 
 }

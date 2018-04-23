@@ -1,31 +1,24 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import javax.swing.JPanel;
-import javax.swing.Timer;
 
 public class Game extends JPanel implements ActionListener {
 
-    public static Random random = new Random(2);
-    public static int SCREEN_WIDTH, SCREEN_HEIGHT;
-    public int framesPassed;
-    public double fpcStart, cy, cx, prevTime, now, secSinceLast, timeStart;
-    public boolean running, quit = false;
-    public Aquarium aquarium;
-    private final int DELAY = 10;
-    private Timer timer;
+    static Random random = new Random(2);
+    static int SCREEN_WIDTH, SCREEN_HEIGHT;
+    private double prevTime;
+    private double now;
+    private double secSinceLast;
+    private double timeStart;
+    private Aquarium aquarium;
     private BufferedImage background;
 
-    public Game() {
+    Game() {
         timeStart = (double) System.currentTimeMillis() / 1000;
         System.out.println("Game started");
         start();
@@ -36,6 +29,7 @@ public class Game extends JPanel implements ActionListener {
         loadResources();
         setStaticVariable();
         addKeyListener(new TAdapter());
+        addMouseListener(new MouseAdapter());
         setFocusable(true);
         setDoubleBuffered(true);
         try {
@@ -43,8 +37,11 @@ public class Game extends JPanel implements ActionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        timer = new Timer(DELAY, this);
+        int DELAY = 10;
+        Timer timer = new Timer(DELAY, this);
         timer.start();
+
+        aquarium.collectors.add(new Snail(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 60), aquarium, now));
     }
 
     private void setStaticVariable() {
@@ -64,7 +61,13 @@ public class Game extends JPanel implements ActionListener {
         Fish.timeUntilHungry = 5;
         Fish.timeUntilDead = 10;
 
-        running = true;
+        Pellet.speed = 30;
+        Pellet.price = 20;
+
+        Snail.speed = 30;
+
+        Coin.speed = 30;
+
         prevTime = timeSinceStart();
     }
 
@@ -83,12 +86,32 @@ public class Game extends JPanel implements ActionListener {
 
         g2d.drawImage(background, 0, 0, this);
 
+        for (int i = 0; i < aquarium.edibles.length(); i++) {
+            Edible edible = aquarium.edibles.get(i);
+            drawObject(g2d, (AquariumObject) edible);
+        }
+
+        for (int i = 0; i < aquarium.valuables.length(); i++) {
+            Valuable valuable = aquarium.valuables.get(i);
+            drawObject(g2d, (AquariumObject) valuable);
+        }
+
+        for (int i = 0; i < aquarium.collectors.length(); i++) {
+            Collector collector = aquarium.collectors.get(i);
+            drawObject(g2d, (AquariumObject) collector);
+        }
+
         for (int i = 0; i < aquarium.fishes.length(); i++) {
             Fish fish = aquarium.fishes.get(i);
-            int x = (int) fish.getPosition().x - fish.getFrame().getWidth() / 2;
-            int y = (int) fish.getPosition().y - fish.getFrame().getHeight() / 2;
-            g2d.drawImage(fish.getFrame(), x, y, this);
+            drawObject(g2d, fish);
         }
+    }
+
+    private void drawObject(Graphics2D g2d, AquariumObject object) {
+        int x = (int) object.position.x - object.getFrame().getWidth() / 2;
+        int y = (int) object.position.y - object.getFrame().getHeight() / 2;
+
+        g2d.drawImage(object.getFrame(), x, y, this);
     }
 
     @Override
@@ -98,32 +121,26 @@ public class Game extends JPanel implements ActionListener {
         for (int i = 0; i < aquarium.fishes.length(); i++) {
             Fish fish = aquarium.fishes.get(i);
             if (!fish.getDestroyed())
-                aquarium.fishes.get(i).update(now, secSinceLast);
+                fish.update(now, secSinceLast);
             else
                 aquarium.fishes.remove(fish);
         }
-    }
-
-    private class TAdapter extends KeyAdapter {
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            if (e.getKeyChar() == 'g') {
-                Guppy guppy = new Guppy(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium, now);
-                aquarium.fishes.add(guppy);
-            }
-            else if (e.getKeyChar() == 'p') {
-                Piranha piranha = new Piranha(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium, now);
-                aquarium.fishes.add(piranha);
-            }
+        for (int i = 0; i < aquarium.collectors.length(); i++) {
+            Collector collector = aquarium.collectors.get(i);
+            collector.update(now, secSinceLast);
         }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
+        for (int i = 0; i < aquarium.valuables.length(); i++) {
+            Valuable valuable = aquarium.valuables.get(i);
+            valuable.update(now, secSinceLast);
+        }
+        for (int i = 0; i < aquarium.edibles.length(); i++) {
+            Edible edible = aquarium.edibles.get(i);
+            if (!edible.touchingGround())
+                edible.update(now, secSinceLast);
+            else
+                aquarium.edibles.remove(edible);
         }
     }
-
-
 
     private void updateGameTime() {
         now = timeSinceStart();
@@ -221,19 +238,68 @@ public class Game extends JPanel implements ActionListener {
         Piranha.anims.add(new Animation("res/smalldie.png", 80, 4));
         Piranha.anims.add(new Animation("res/smalldieflip.png", 80, 4));
 
-        Animation animSnailMove = new Animation("res/stinky.png", 80, 0);
-        Animation animSnailIdle = new Animation("res/stinky.png", 80, 2);
-        Animation animSnailTurn = new Animation("res/stinky.png", 80, 1);
-        Animation animSnailFlipMove = new Animation("res/stinkyflip.png", 80, 0);
-        Animation animSnailFlipIdle = new Animation("res/stinkyflip.png", 80, 2);
-        Animation animSnailFlipTurn = new Animation("res/stinkyflip.png", 80, 1);
+        Snail.anims.add(new Animation("res/stinky.png", 80, 0));
+        Snail.anims.add(new Animation("res/stinky.png", 80, 2));
+        Snail.anims.add(new Animation("res/stinky.png", 80, 1));
+        Snail.anims.add(new Animation("res/stinkyflip.png", 80, 0));
+        Snail.anims.add(new Animation("res/stinkyflip.png", 80, 2));
+        Snail.anims.add(new Animation("res/stinkyflip.png", 80, 1));
 
-        Animation animFoodMove = new Animation("res/food.png", 40, 1);
+        Pellet.anims.add(new Animation("res/food.png", 40, 1));
 
-        Animation animCoinMove = new Animation("res/money.png", 72, 0);
-        Animation animGoldCoinMove = new Animation("res/money.png", 72, 1);
-        Animation animStarCoinMove = new Animation("res/money.png", 72, 2);
-        Animation animDiamondCoinMove = new Animation("res/money.png", 72, 3);
+        Coin.anims.add(new Animation("res/money.png", 72, 0));
+        Coin.anims.add(new Animation("res/money.png", 72, 1));
+        Coin.anims.add(new Animation("res/money.png", 72, 2));
+        Coin.anims.add(new Animation("res/money.png", 72, 3));
+    }
+
+    private class TAdapter extends KeyAdapter {
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            if (e.getKeyChar() == 'g') {
+                Guppy guppy = new Guppy(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium, now);
+                aquarium.fishes.add(guppy);
+            } else if (e.getKeyChar() == 'p') {
+                Piranha piranha = new Piranha(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium, now);
+                aquarium.fishes.add(piranha);
+            }
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+        }
+    }
+
+    private class MouseAdapter implements MouseListener {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (e.getButton() == MouseEvent.BUTTON1) {
+                Edible edible = new Pellet(new Position(e.getX(), e.getY()), aquarium, now);
+                aquarium.edibles.add(edible);
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
     }
 
 }

@@ -3,11 +3,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Animation {
+class Animation {
 
     private BufferedImage[] frames;
 
-    public Animation(String path, int size, int index) {
+    Animation(String path, int size, int index) {
         try {
             BufferedImage sprite = ImageIO.read(new File(path));
             frames = new BufferedImage[sprite.getWidth() / size];
@@ -20,7 +20,7 @@ public class Animation {
         }
     }
 
-    public BufferedImage getFrame(int index) {
+    BufferedImage getFrame(int index) {
         return frames[index];
     }
 }

@@ -3,10 +3,10 @@ import java.util.ArrayList;
 
 public class Piranha extends Fish {
 
-    public static int speed, price;
-    public static ArrayList<Animation> anims = new ArrayList<>();
+    static int speed, price;
+    static ArrayList<Animation> anims = new ArrayList<>();
 
-    public Piranha (Position pos, Aquarium aquarium, double now) {
+    Piranha(Position pos, Aquarium aquarium, double now) {
         super(Type.PIRANHA, pos, aquarium, now, Piranha.speed);
         direction = Game.random.nextDouble() * 360;
         aquarium.gold -= Guppy.price;
@@ -14,8 +14,9 @@ public class Piranha extends Fish {
         hungry = false;
     }
 
-    private void produceCoin(double now, int price) {
-
+    private void produceCoin(double now, int value) {
+        Coin coin = new Coin(new Position(position.x, position.y), aquarium, now, value);
+        aquarium.valuables.add(coin);
     }
 
     @Override
@@ -34,7 +35,8 @@ public class Piranha extends Fish {
             animMode = 1 + 3 * (hungry ? 1 : 0) + 6 * (right ? 1 : 0);
             timeStamp = now;
         }
-        return false;    }
+        return false;
+    }
 
     @Override
     public BufferedImage getFrame() {

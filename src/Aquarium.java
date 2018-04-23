@@ -1,12 +1,16 @@
-public class Aquarium {
+class Aquarium {
 
-    public int gold;
-    public LinkedList<Food> foods;
-    public LinkedList<Fish> fishes;
+    int gold;
+    LinkedList<Edible> edibles;
+    LinkedList<Fish> fishes;
+    LinkedList<Valuable> valuables;
+    LinkedList<Collector> collectors;
 
-    public Aquarium() {
-        foods = new LinkedList<>();
+    Aquarium() {
+        edibles = new LinkedList<>();
         fishes = new LinkedList<>();
+        valuables = new LinkedList<>();
+        collectors = new LinkedList<>();
     }
 
 }

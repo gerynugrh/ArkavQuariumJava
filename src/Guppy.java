@@ -4,11 +4,11 @@ import java.util.ArrayList;
 public class Guppy extends Fish {
 
     static int foodForUpgrade, timeForCoin, speed, price;
-    private double timeSinceLastCoin;
     static ArrayList<Animation> anims = new ArrayList<>();
+    private double timeSinceLastCoin;
     private int amountOfFood;
 
-    public Guppy (Position pos, Aquarium aquarium, double now) {
+    Guppy(Position pos, Aquarium aquarium, double now) {
         super(Fish.Type.GUPPY, pos, aquarium, now, Guppy.speed);
         direction = Game.random.nextDouble() * 360;
         amountOfFood = 0;
@@ -39,20 +39,21 @@ public class Guppy extends Fish {
     }
 
     protected Object findNearestFood() {
-        Food nearestFood = null;
+        Edible nearestEdible = null;
         double minDistance = Double.MAX_VALUE;
-        for (int i = 0; i < aquarium.foods.length(); i++) {
-            Food food = aquarium.foods.get(i);
-            if (position.distanceFrom(food.getPosition()) < minDistance) {
-                minDistance = position.distanceFrom(food.getPosition());
-                nearestFood = food;
+        for (int i = 0; i < aquarium.edibles.length(); i++) {
+            Edible edible = aquarium.edibles.get(i);
+            if (position.distanceFrom(edible.getPosition()) < minDistance) {
+                minDistance = position.distanceFrom(edible.getPosition());
+                nearestEdible = edible;
             }
         }
-        return nearestFood;
+        return nearestEdible;
     }
 
     private void produceCoin(double now) {
-        // TODO Construct coin and add into aquarium
+        Coin coin = new Coin(new Position(position.x, position.y), aquarium, now, 40 * (stage + 1));
+        aquarium.valuables.add(coin);
     }
 
     private void upgrade() {
@@ -64,12 +65,12 @@ public class Guppy extends Fish {
 
     @Override
     protected boolean eat(double now) {
-        Food food = (Food) findNearestFood();
-        if (hungry && food != null && position.distanceFrom(food.getPosition()) <= 20) {
-            aquarium.foods.remove(food);
+        Edible edible = (Edible) findNearestFood();
+        if (hungry && edible != null && position.distanceFrom(edible.getPosition()) <= 20) {
+            aquarium.edibles.remove(edible);
             amountOfFood++;
             return true;
-        } else if (hungry && food != null && position.distanceFrom(food.getPosition()) <= 60) {
+        } else if (hungry && edible != null && position.distanceFrom(edible.getPosition()) <= 60) {
             animMode = 1 + 3 * (hungry ? 1 : 0) + 6 * (right ? 1 : 0) + 12 * stage;
             timeStamp = now;
         }

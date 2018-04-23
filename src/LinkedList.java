@@ -1,28 +1,13 @@
 public class LinkedList<T> {
 
-    public class Node<T> {
-        T value;
-        Node<T> next;
-
-        Node(T value, Node<T> next) {
-            this.value = value;
-            this.next = next;
-        }
-
-        public Node() {
-            value = null;
-            next = null;
-        }
-    }
-
     private Node<T> head, tail;
 
-    public LinkedList() {
+    LinkedList() {
         head = null;
         tail = null;
     }
 
-    public T get(int index) {
+    T get(int index) {
         Node<T> curr = head;
         int pos = 0;
         while (curr != null) {
@@ -30,10 +15,10 @@ public class LinkedList<T> {
             curr = curr.next;
             pos++;
         }
-        throw new IndexOutOfBoundsException (index);
+        throw new IndexOutOfBoundsException(index);
     }
 
-    public void remove(T value) {
+    void remove(T value) {
         Node<T> curr = head;
         if (curr.value == value) {
             if (curr.next == null) tail = null;
@@ -49,20 +34,18 @@ public class LinkedList<T> {
         }
     }
 
-    public void add(T value) {
+    void add(T value) {
         Node<T> temp = new Node<>(value, null);
         if (head == null) {
             head = temp;
             tail = temp;
-            temp = null;
-        }
-        else {
+        } else {
             tail.next = temp;
             tail = temp;
         }
     }
 
-    public int length() {
+    int length() {
         int length = 0;
         Node<T> curr = head;
         while (curr != null) {
@@ -83,5 +66,15 @@ public class LinkedList<T> {
             pos++;
         }
         throw new IndexOutOfBoundsException("No object found");
+    }
+
+    public class Node<E> {
+        E value;
+        Node<E> next;
+
+        Node(E value, Node<E> next) {
+            this.value = value;
+            this.next = next;
+        }
     }
 }

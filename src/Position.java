@@ -2,19 +2,19 @@ import static java.lang.Math.sqrt;
 
 public class Position {
 
-    public double x, y;
+    double x, y;
 
     public Position() {
         x = 0;
         y = 0;
     }
 
-    public Position(double x, double y) {
+    Position(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
-    public double distanceFrom(Position pos) {
+    double distanceFrom(Position pos) {
         return sqrt((x - pos.x) * (x - pos.x) + (y - pos.y) * (y - pos.y));
     }
 
