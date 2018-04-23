@@ -12,7 +12,7 @@ public class Animation {
             BufferedImage sprite = ImageIO.read(new File(path));
             frames = new BufferedImage[sprite.getWidth() / size];
             for (int i = 0; i < sprite.getWidth() / size; i++) {
-                BufferedImage frame = sprite.getSubimage(i * size, index, size, size);
+                BufferedImage frame = sprite.getSubimage(i * size, index * size, size, size);
                 frames[i] = frame;
             }
         } catch (IOException e) {

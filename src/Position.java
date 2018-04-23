@@ -2,14 +2,14 @@ import static java.lang.Math.sqrt;
 
 public class Position {
 
-    public int x, y;
+    public double x, y;
 
     public Position() {
         x = 0;
         y = 0;
     }
 
-    public Position(int x, int y) {
+    public Position(double x, double y) {
         this.x = x;
         this.y = y;
     }

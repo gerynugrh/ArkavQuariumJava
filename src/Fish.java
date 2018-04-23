@@ -5,13 +5,22 @@ public abstract class Fish extends AquariumObject {
     protected enum Type {GUPPY, PIRANHA};
     protected final Type type;
     protected boolean alive, hungry, destroyed;
-    protected int stage;
-    protected long timeHungry, timeEat, timeStamp;
-    protected static long timeUntilHungry, timeUntilDead;
+    protected int stage, speed;
+    protected static double timeUntilHungry, timeUntilDead;
+    protected double timeStamp, timeEat, timeHungry;
+    protected boolean right;
 
-    public Fish(Type type, Position pos, Aquarium aquarium, double now) {
+    public Fish(Type type, Position pos, Aquarium aquarium, double now, int speed) {
         super(pos, aquarium, now);
         this.type = type;
+        this.speed = speed;
+        stage = 0;
+        right = false;
+        timeStamp = (long) now;
+        animFrame = 0;
+        animMode = 0;
+        timeEat = (long) now;
+        alive = true;
     }
 
     public Type getType() {
@@ -27,8 +36,111 @@ public abstract class Fish extends AquariumObject {
     }
 
     public abstract int getStage();
-    public abstract void update(double now, double secSinceLast);
+    protected abstract boolean eat(double now);
     public abstract BufferedImage getFrame();
-    protected abstract void move(double secSinceLast);
+    protected abstract Object findNearestFood();
+
+    private void move(double secSinceLast) {
+        if (moveDuration < 0) {
+            moveDuration = Game.random.nextDouble() * 4 + 1;
+            direction = Game.random.nextDouble() * 360;
+        }
+        else {
+            moveDuration -= secSinceLast;
+        }
+        if (hungry && findNearestFood() != null) {
+            AquariumObject nearestFood = (AquariumObject) findNearestFood();
+            double deltaX, deltaY;
+            deltaX = nearestFood.position.x - position.x;
+            deltaY = nearestFood.position.y - position.y;
+
+            direction = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+        }
+        else {
+            double newX, newY;
+            newX = position.x + Math.cos(direction * Math.PI / 180.0) * secSinceLast * Guppy.speed;
+            newY = position.y + Math.cos(direction * Math.PI / 180.0) * secSinceLast * Guppy.speed;
+
+            if (newX >= Game.SCREEN_WIDTH - 40) {
+                direction = 90 + Game.random.nextDouble() * 180;
+            }
+            else if (newX <= 40) {
+                direction = 270 + Game.random.nextDouble() * 180;
+            }
+            else if (newY <= 40) {
+                direction = 0 + Game.random.nextDouble() * 180;
+            }
+            else if (newY >= Game.SCREEN_HEIGHT - 40) {
+                direction = 180 + Game.random.nextDouble() * 180;
+            }
+        }
+        position.x += Math.cos(direction * Math.PI / 180.0) * secSinceLast * Guppy.speed;
+        position.y += Math.sin(direction * Math.PI / 180.0) * secSinceLast * Guppy.speed;
+    }
+
+    public void update(double now, double secSinceLast) {
+        if (alive) {
+            if (animMode % 3 == 1 && animFrame == 9) {
+                animMode = 3 * (hungry ? 1 : 0) + 6 * (right ? 1 : 0) + 12 * stage;
+                animFrame = 0;
+                timeStamp = now;
+            }
+            else if (right && (animMode % 6) % 3 == 2 && animFrame == 9) {
+                animMode = 3 * (hungry ? 1 : 0) + 6 + 12 * stage;
+                animFrame = 0;
+                timeStamp = now;
+            }
+            else if (!right && (animMode % 6) % 3 == 2) {
+                animFrame = 9 - (int) ((now - timeStamp) * 50 % 60) / 6;
+
+                if (animFrame == 0) {
+                    animMode = 3 * (hungry ? 1 : 0) + 12 * stage;
+                    animFrame = 0;
+                    timeStamp = now;
+                }
+            }
+            else {
+                animFrame = (int) ((now - timeStamp) * 50 % 60) / 6;
+            }
+            move(secSinceLast);
+            if (eat(now)) {
+                timeEat = now;
+                timeHungry = timeEat + timeUntilHungry;
+                hungry = false;
+                animMode = animMode % 3 + 6 * (right ? 1 : 0) + 12 * stage;
+            }
+            if (hungry && now - timeHungry >= timeUntilDead) {
+                alive = false;
+                animMode = (type == Type.GUPPY ? 48 : 12) + 2 * stage + (right ? 1 : 0);
+                animFrame = 0;
+                timeStamp = now;
+            }
+            else if (!hungry && now - timeEat >= timeUntilHungry) {
+                timeHungry = now;
+                hungry = true;
+                animMode = animMode % 3 + 3 + 6 * (right ? 1 : 0) + 12 * stage;
+            }
+            if (!right && (direction <= 90 || direction >= 270)) {
+                animMode = 2 + 3 * (hungry ? 1 : 0) + 12 * stage;
+                timeStamp = now;
+                right = true;
+            }
+            else if (right && (direction >= 90 && direction <= 270)) {
+                animMode = 2 + 3 * (hungry ? 1 : 0) + 6 + 12 * stage;
+                animFrame = 9;
+                timeStamp = now;
+                right = false;
+            }
+        }
+        else {
+            if (animFrame == 9) {
+                destroyed = true;
+            }
+            else {
+                position.y += secSinceLast * 30;
+                animFrame = (int) ((now - timeStamp) * 50 % 60) / 6;
+            }
+        }
+    }
 
 }
