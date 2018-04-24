@@ -1,33 +1,33 @@
-import javax.swing.*;
-import java.awt.*;
+import java.awt.EventQueue;
+import javax.swing.JFrame;
 
 public class Engine extends JFrame {
 
-    static int SCREEN_WIDTH = 640;
-    static int SCREEN_HEIGHT = 480;
+  static int SCREEN_WIDTH = 640;
+  static int SCREEN_HEIGHT = 480;
 
-    private Engine() {
+  private Engine() {
 
-        initUI();
-    }
+    initUI();
+  }
 
-    public static void main(String[] args) {
+  public static void main(String[] args) {
 
-        EventQueue.invokeLater(() -> {
-            Engine ex = new Engine();
-            ex.setVisible(true);
-        });
-    }
+    EventQueue.invokeLater(() -> {
+      Engine ex = new Engine();
+      ex.setVisible(true);
+    });
+  }
 
-    private void initUI() {
+  private void initUI() {
 
-        add(new Game());
+    add(new Game());
 
-        setTitle("ArkavQuarium");
-        setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
+    setTitle("ArkavQuarium");
+    setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        setLocationRelativeTo(null);
-        setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
+    setLocationRelativeTo(null);
+    setResizable(false);
+    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  }
 }

@@ -1,9 +1,9 @@
 public interface Valuable {
 
-    Position getPosition();
+  Position getPosition();
 
-    void update(double now, double secSinceLast);
+  void update(double now, double secSinceLast);
 
-    void removeCoin();
+  void removeCoin();
 
 }
