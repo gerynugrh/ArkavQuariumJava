@@ -44,6 +44,9 @@ public class Game extends JPanel implements ActionListener {
         aquarium.collectors.add(new Snail(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 60), aquarium, now));
     }
 
+    /**
+     * Set all the static variable used in this game
+     */
     private void setStaticVariable() {
         Game.SCREEN_HEIGHT = 480;
         Game.SCREEN_WIDTH = 640;
@@ -71,6 +74,10 @@ public class Game extends JPanel implements ActionListener {
         prevTime = timeSinceStart();
     }
 
+    /**
+     * Redraw the screen
+     * @param g graphic where to draw the objects
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -80,11 +87,17 @@ public class Game extends JPanel implements ActionListener {
         Toolkit.getDefaultToolkit().sync();
     }
 
+    /**
+     * Draw all the objects that exist in aquarium
+     * @param g graphic where to draw the objects
+     */
     private void doDrawing(Graphics g) {
 
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.drawImage(background, 0, 0, this);
+
+        g2d.drawString("Score", 20, 20);
 
         for (int i = 0; i < aquarium.edibles.length(); i++) {
             Edible edible = aquarium.edibles.get(i);
@@ -107,6 +120,12 @@ public class Game extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Draw an object into the graphic
+     * object position will become the center of image
+     * @param g2d where to draw image
+     * @param object object that is going to be drawn
+     */
     private void drawObject(Graphics2D g2d, AquariumObject object) {
         int x = (int) object.position.x - object.getFrame().getWidth() / 2;
         int y = (int) object.position.y - object.getFrame().getHeight() / 2;
@@ -114,6 +133,12 @@ public class Game extends JPanel implements ActionListener {
         g2d.drawImage(object.getFrame(), x, y, this);
     }
 
+    /**
+     * Define the action performed each time the timer fired off
+     * Call all the update method for each entity
+     * and remove those that has flag destroyed
+     * @param e event that happens in the time span
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         updateGameTime();
@@ -142,16 +167,26 @@ public class Game extends JPanel implements ActionListener {
         }
     }
 
+    /**
+     * Update the current in-game clock
+     */
     private void updateGameTime() {
         now = timeSinceStart();
         secSinceLast = now - prevTime;
         prevTime = now;
     }
 
+    /**
+     * @return time spent since the game started
+     */
     private double timeSinceStart() {
         return (double) System.currentTimeMillis() / 1000 - timeStart;
     }
 
+    /**
+     * Load resources (sprite) for each object in ArkavQuarium
+     * Add the loaded animation into each object
+     */
     private void loadResources() {
 
         // Add small guppy animation
