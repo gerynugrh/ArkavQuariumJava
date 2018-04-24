@@ -3,6 +3,9 @@ import java.awt.*;
 
 public class Engine extends JFrame {
 
+    static int SCREEN_WIDTH = 640;
+    static int SCREEN_HEIGHT = 480;
+
     private Engine() {
 
         initUI();
@@ -21,7 +24,7 @@ public class Engine extends JFrame {
         add(new Game());
 
         setTitle("ArkavQuarium");
-        setSize(640, 480);
+        setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 
         setLocationRelativeTo(null);
         setResizable(false);

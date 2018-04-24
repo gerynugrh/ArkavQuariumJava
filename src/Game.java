@@ -11,25 +11,39 @@ public class Game extends JPanel implements ActionListener {
 
     static Random random = new Random(2);
     static int SCREEN_WIDTH, SCREEN_HEIGHT;
+    private static int EGG_PRICE;
     private double prevTime;
     private double now;
     private double secSinceLast;
     private double timeStart;
+    private double offset; // Save the value of pause duration
+    private int numOfEgg;
+    private boolean running;
+    private boolean gameOver;
+    private boolean win;
     private Aquarium aquarium;
     private BufferedImage background;
 
     Game() {
         timeStart = (double) System.currentTimeMillis() / 1000;
         System.out.println("Game started");
+        numOfEgg = 0;
+        offset = 0;
+        running = true;
+        gameOver = false;
+        win = false;
         start();
     }
 
     private void start() {
         aquarium = new Aquarium();
+        // Load and set game resources
         loadResources();
         setStaticVariable();
+        // Add listener
         addKeyListener(new TAdapter());
         addMouseListener(new MouseAdapter());
+        // Set scene property
         setFocusable(true);
         setDoubleBuffered(true);
         try {
@@ -37,6 +51,16 @@ public class Game extends JPanel implements ActionListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // Set font
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        try {
+            Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File("res/fb.TTF"));
+            ge.registerFont(customFont);
+            System.out.println(customFont.getName());
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+        }
+        // Create a timer
         int DELAY = 10;
         Timer timer = new Timer(DELAY, this);
         timer.start();
@@ -48,8 +72,9 @@ public class Game extends JPanel implements ActionListener {
      * Set all the static variable used in this game
      */
     private void setStaticVariable() {
-        Game.SCREEN_HEIGHT = 480;
-        Game.SCREEN_WIDTH = 640;
+        Game.SCREEN_HEIGHT = Engine.SCREEN_HEIGHT;
+        Game.SCREEN_WIDTH = Engine.SCREEN_WIDTH;
+        EGG_PRICE = 1000;
 
         // Guppy static variable
         Guppy.foodForUpgrade = 1;
@@ -76,6 +101,7 @@ public class Game extends JPanel implements ActionListener {
 
     /**
      * Redraw the screen
+     *
      * @param g graphic where to draw the objects
      */
     @Override
@@ -89,6 +115,7 @@ public class Game extends JPanel implements ActionListener {
 
     /**
      * Draw all the objects that exist in aquarium
+     *
      * @param g graphic where to draw the objects
      */
     private void doDrawing(Graphics g) {
@@ -97,7 +124,14 @@ public class Game extends JPanel implements ActionListener {
 
         g2d.drawImage(background, 0, 0, this);
 
-        g2d.drawString("Score", 20, 20);
+        g2d.setFont(new Font("04b_19", Font.PLAIN, 20));
+        g2d.setColor(Color.white);
+        g2d.drawString("Gold: " + aquarium.gold, 10, 30);
+        g2d.drawString("Egg: " + numOfEgg, SCREEN_WIDTH - 100, 30);
+
+        g2d.setFont(new Font("04b_19", Font.PLAIN, 14));
+        g2d.setColor(Color.white);
+        g2d.drawString("Guppy (g)  Piranha(p)  Egg(e)", 10, SCREEN_HEIGHT - 50);
 
         for (int i = 0; i < aquarium.edibles.length(); i++) {
             Edible edible = aquarium.edibles.get(i);
@@ -118,12 +152,27 @@ public class Game extends JPanel implements ActionListener {
             Fish fish = aquarium.fishes.get(i);
             drawObject(g2d, fish);
         }
+
+        if (!running && gameOver) {
+            g2d.setFont(new Font("04b_19", Font.PLAIN, 40));
+            g2d.setColor(Color.white);
+            g2d.drawString("Game Over", SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2);
+        } else if (!running && win) {
+            g2d.setFont(new Font("04b_19", Font.PLAIN, 40));
+            g2d.setColor(Color.white);
+            g2d.drawString("You win!", SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2);
+        } else if (!running) {
+            g2d.setFont(new Font("04b_19", Font.PLAIN, 40));
+            g2d.setColor(Color.white);
+            g2d.drawString("Paused", SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2);
+        }
     }
 
     /**
      * Draw an object into the graphic
      * object position will become the center of image
-     * @param g2d where to draw image
+     *
+     * @param g2d    where to draw image
      * @param object object that is going to be drawn
      */
     private void drawObject(Graphics2D g2d, AquariumObject object) {
@@ -137,33 +186,49 @@ public class Game extends JPanel implements ActionListener {
      * Define the action performed each time the timer fired off
      * Call all the update method for each entity
      * and remove those that has flag destroyed
+     *
      * @param e event that happens in the time span
      */
     @Override
     public void actionPerformed(ActionEvent e) {
-        updateGameTime();
         repaint(new Rectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT));
-        for (int i = 0; i < aquarium.fishes.length(); i++) {
-            Fish fish = aquarium.fishes.get(i);
-            if (!fish.getDestroyed())
-                fish.update(now, secSinceLast);
-            else
-                aquarium.fishes.remove(fish);
-        }
-        for (int i = 0; i < aquarium.collectors.length(); i++) {
-            Collector collector = aquarium.collectors.get(i);
-            collector.update(now, secSinceLast);
-        }
-        for (int i = 0; i < aquarium.valuables.length(); i++) {
-            Valuable valuable = aquarium.valuables.get(i);
-            valuable.update(now, secSinceLast);
-        }
-        for (int i = 0; i < aquarium.edibles.length(); i++) {
-            Edible edible = aquarium.edibles.get(i);
-            if (!edible.touchingGround())
-                edible.update(now, secSinceLast);
-            else
-                aquarium.edibles.remove(edible);
+        if (running) {
+            updateGameTime();
+            for (int i = 0; i < aquarium.fishes.length(); i++) {
+                Fish fish = aquarium.fishes.get(i);
+                if (!fish.getDestroyed())
+                    fish.update(now, secSinceLast);
+                else
+                    aquarium.fishes.remove(fish);
+            }
+            for (int i = 0; i < aquarium.collectors.length(); i++) {
+                Collector collector = aquarium.collectors.get(i);
+                collector.update(now, secSinceLast);
+            }
+            for (int i = 0; i < aquarium.valuables.length(); i++) {
+                Valuable valuable = aquarium.valuables.get(i);
+                valuable.update(now, secSinceLast);
+            }
+            for (int i = 0; i < aquarium.edibles.length(); i++) {
+                Edible edible = aquarium.edibles.get(i);
+                if (!edible.touchingGround())
+                    edible.update(now, secSinceLast);
+                else
+                    aquarium.edibles.remove(edible);
+            }
+            if (numOfEgg >= 3) {
+                running = false;
+                // As the game need currentTimeMilis to determine animation and hunger
+                // and System.currentTimeMillis() keeps running in the background
+                // we need an offset so that the game will be resumed to it's normal state
+                // (before paused) after it gots resumed
+                offset = (double) System.currentTimeMillis() / 1000;
+                win = true;
+            }
+            if (aquarium.fishes.length() == 0 && aquarium.gold < Guppy.price && aquarium.valuables.length() == 0) {
+                running = false;
+                gameOver = true;
+            }
         }
     }
 
@@ -171,7 +236,7 @@ public class Game extends JPanel implements ActionListener {
      * Update the current in-game clock
      */
     private void updateGameTime() {
-        now = timeSinceStart();
+        now = timeSinceStart() - offset;
         secSinceLast = now - prevTime;
         prevTime = now;
     }
@@ -292,12 +357,20 @@ public class Game extends JPanel implements ActionListener {
 
         @Override
         public void keyReleased(KeyEvent e) {
-            if (e.getKeyChar() == 'g') {
+            if (e.getKeyChar() == 'g' && aquarium.gold >= Guppy.price && running) {
                 Guppy guppy = new Guppy(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium, now);
                 aquarium.fishes.add(guppy);
-            } else if (e.getKeyChar() == 'p') {
+            } else if (e.getKeyChar() == 'p' && aquarium.gold >= Piranha.price && running) {
                 Piranha piranha = new Piranha(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium, now);
                 aquarium.fishes.add(piranha);
+            } else if (e.getKeyChar() == 'e' && aquarium.gold >= EGG_PRICE && running) {
+                numOfEgg++;
+            } else if (e.getKeyCode() == KeyEvent.VK_SPACE && !running && !gameOver) {
+                running = true;
+                offset = (double) System.currentTimeMillis() / 1000 - offset;
+            } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && running) {
+                running = false;
+                offset = (double) System.currentTimeMillis() / 1000;
             }
         }
 
@@ -310,7 +383,7 @@ public class Game extends JPanel implements ActionListener {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (e.getButton() == MouseEvent.BUTTON1) {
+            if (e.getButton() == MouseEvent.BUTTON1 && aquarium.gold >= Pellet.price) {
                 Edible edible = new Pellet(new Position(e.getX(), e.getY()), aquarium, now);
                 aquarium.edibles.add(edible);
             }

@@ -27,9 +27,7 @@ public class Snail extends AquariumObject implements Collector {
     @Override
     public void update(double now, double secSinceLast) {
         // Unless the snail is at idle state, keep playing animation
-        if (!(animMode % 3 == 1 && animFrame == 9)) {
-            animFrame = (int) ((now - timeSpawned) * 50 % 60) / 6;
-        } else if (right && animMode % 3 == 2) {
+        if (right && animMode % 3 == 2) {
             animMode = 3;
             animFrame = 0;
             timeSpawned = now;
@@ -40,6 +38,8 @@ public class Snail extends AquariumObject implements Collector {
                 animFrame = 0;
                 timeSpawned = now;
             }
+        } else if (!(animMode % 3 == 1 && animFrame == 9)) {
+            animFrame = (int) ((now - timeSpawned) * 50 % 60) / 6;
         }
         if (!idle && findNearestCoin() == null) {
             direction = 0;

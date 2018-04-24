@@ -64,13 +64,13 @@ public abstract class Fish extends AquariumObject {
             newX = position.x + Math.cos(direction * Math.PI / 180.0) * secSinceLast * speed;
             newY = position.y + Math.cos(direction * Math.PI / 180.0) * secSinceLast * speed;
 
-            if (newX >= Game.SCREEN_WIDTH - 40) {
+            if (newX >= Game.SCREEN_WIDTH - 60) {
                 direction = 90 + Game.random.nextDouble() * 180;
-            } else if (newX <= 40) {
+            } else if (newX <= 60) {
                 direction = 270 + Game.random.nextDouble() * 180;
-            } else if (newY <= 40) {
+            } else if (newY <= 60) {
                 direction = 0 + Game.random.nextDouble() * 180;
-            } else if (newY >= Game.SCREEN_HEIGHT - 40) {
+            } else if (newY >= Game.SCREEN_HEIGHT - 60) {
                 direction = 180 + Game.random.nextDouble() * 180;
             }
         }

@@ -11,6 +11,8 @@ class Aquarium {
         fishes = new LinkedList<>();
         valuables = new LinkedList<>();
         collectors = new LinkedList<>();
+
+        gold = 1000;
     }
 
 }
