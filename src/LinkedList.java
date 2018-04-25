@@ -17,7 +17,7 @@ class LinkedList<T> {
       curr = curr.next;
       pos++;
     }
-    throw new IndexOutOfBoundsException(index);
+    throw new IndexOutOfBoundsException(Integer.toString(index));
   }
 
   void remove(T value) {
