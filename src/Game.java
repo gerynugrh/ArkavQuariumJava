@@ -30,6 +30,7 @@ public class Game extends JPanel implements ActionListener {
   private double secSinceLast;
   private double timeStart;
   private double offset; // Save the value of pause duration
+  private double saveTime; // Save the value of current pause duration
   private int numOfEgg;
   private boolean running;
   private boolean gameOver;
@@ -236,7 +237,7 @@ public class Game extends JPanel implements ActionListener {
         // and System.currentTimeMillis() keeps running in the background
         // we need an offset so that the game will be resumed to it's normal state
         // (before paused) after it gots resumed
-        offset = (double) System.currentTimeMillis() / 1000;
+        saveTime = (double) System.currentTimeMillis() / 1000;
         win = true;
       }
       if (aquarium.fishes.length() == 0 && aquarium.gold < Guppy.price
@@ -373,20 +374,23 @@ public class Game extends JPanel implements ActionListener {
     @Override
     public void keyReleased(KeyEvent e) {
       if (e.getKeyChar() == 'g' && aquarium.gold >= Guppy.price && running) {
-        Guppy guppy = new Guppy(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium, now);
+        double spawnPositionX = random.nextDouble() * (SCREEN_WIDTH - 160) + 80;
+        double spawnPositionY = random.nextDouble() * (SCREEN_HEIGHT - 160) + 80;
+        Guppy guppy = new Guppy(new Position(spawnPositionX, spawnPositionY), aquarium, now);
         aquarium.fishes.add(guppy);
       } else if (e.getKeyChar() == 'p' && aquarium.gold >= Piranha.price && running) {
-        Piranha piranha = new Piranha(new Position(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), aquarium,
-            now);
+        double spawnPositionX = random.nextDouble() * (SCREEN_WIDTH - 160) + 80;
+        double spawnPositionY = random.nextDouble() * (SCREEN_HEIGHT - 160) + 80;
+        Piranha piranha = new Piranha(new Position(spawnPositionX, spawnPositionY), aquarium, now);
         aquarium.fishes.add(piranha);
       } else if (e.getKeyChar() == 'e' && aquarium.gold >= EGG_PRICE && running) {
         numOfEgg++;
       } else if (e.getKeyCode() == KeyEvent.VK_SPACE && !running && !gameOver) {
         running = true;
-        offset = (double) System.currentTimeMillis() / 1000 - offset;
+        offset += (double) System.currentTimeMillis() / 1000 - saveTime;
       } else if (e.getKeyCode() == KeyEvent.VK_ESCAPE && running) {
         running = false;
-        offset = (double) System.currentTimeMillis() / 1000;
+        saveTime = (double) System.currentTimeMillis() / 1000;
       }
     }
 
