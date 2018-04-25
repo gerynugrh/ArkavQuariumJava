@@ -1,9 +1,9 @@
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 
-public class Engine extends JFrame {
+class Engine extends JFrame {
 
-  static int SCREEN_WIDTH = 640;
+  static final int SCREEN_WIDTH = 640;
   static int SCREEN_HEIGHT = 480;
 
   private Engine() {

@@ -20,9 +20,9 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-public class Game extends JPanel implements ActionListener {
+class Game extends JPanel implements ActionListener {
 
-  static Random random = new Random(2);
+  static final Random random = new Random(2);
   static int SCREEN_WIDTH, SCREEN_HEIGHT;
   private static int EGG_PRICE;
   private double prevTime;

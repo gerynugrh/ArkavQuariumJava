@@ -1,4 +1,4 @@
-public class LinkedList<T> {
+class LinkedList<T> {
 
   private Node<T> head, tail;
 
@@ -42,7 +42,7 @@ public class LinkedList<T> {
   }
 
   void add(T value) {
-    Node<T> temp = new Node<>(value, null);
+    Node<T> temp = new Node<>(value);
     if (head == null) {
       head = temp;
       tail = temp;
@@ -77,12 +77,12 @@ public class LinkedList<T> {
 
   public class Node<E> {
 
-    E value;
+    final E value;
     Node<E> next;
 
-    Node(E value, Node<E> next) {
+    Node(E value) {
       this.value = value;
-      this.next = next;
+      this.next = null;
     }
   }
 }

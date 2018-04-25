@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class Piranha extends Fish {
 
   static int speed, price;
-  static ArrayList<Animation> anims = new ArrayList<>();
+  static final ArrayList<Animation> anims = new ArrayList<>();
 
   Piranha(Position pos, Aquarium aquarium, double now) {
     super(Type.PIRANHA, pos, aquarium, now, Piranha.speed);

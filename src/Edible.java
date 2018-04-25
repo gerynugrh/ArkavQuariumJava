@@ -1,4 +1,4 @@
-public interface Edible {
+interface Edible {
 
   Position getPosition();
 

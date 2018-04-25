@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Coin extends AquariumObject implements Valuable {
 
-  static ArrayList<Animation> anims = new ArrayList<>();
+  static final ArrayList<Animation> anims = new ArrayList<>();
   static int speed;
   private int value;
   private boolean touchedGround;

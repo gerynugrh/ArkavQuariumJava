@@ -1,4 +1,4 @@
-public interface Collector {
+interface Collector {
 
   Position getPosition();
 

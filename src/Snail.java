@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Snail extends AquariumObject implements Collector {
 
-  static ArrayList<Animation> anims = new ArrayList<>();
+  static final ArrayList<Animation> anims = new ArrayList<>();
   static int speed;
   private boolean idle, right;
 

@@ -3,7 +3,7 @@ import java.util.ArrayList;
 
 public class Pellet extends AquariumObject implements Edible {
 
-  static ArrayList<Animation> anims = new ArrayList<>();
+  static final ArrayList<Animation> anims = new ArrayList<>();
   static int speed, price;
   private boolean touchedGround;
 

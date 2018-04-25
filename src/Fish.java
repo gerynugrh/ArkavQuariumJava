@@ -11,7 +11,7 @@ public abstract class Fish extends AquariumObject {
   double timeStamp;
   boolean right;
   private boolean alive, destroyed;
-  private int speed;
+  private final int speed;
   private double timeEat, timeHungry;
 
   Fish(Type type, Position pos, Aquarium aquarium, double now, int speed) {
@@ -37,7 +37,7 @@ public abstract class Fish extends AquariumObject {
     return position;
   }
 
-  public abstract int getStage();
+  protected abstract int getStage();
 
   protected abstract boolean eat(double now);
 

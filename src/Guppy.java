@@ -4,7 +4,7 @@ import java.util.ArrayList;
 public class Guppy extends Fish {
 
   static int foodForUpgrade, timeForCoin, speed, price;
-  static ArrayList<Animation> anims = new ArrayList<>();
+  static final ArrayList<Animation> anims = new ArrayList<>();
   private double timeSinceLastCoin;
   private int amountOfFood;
 

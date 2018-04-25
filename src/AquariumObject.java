@@ -3,7 +3,7 @@ import java.awt.image.BufferedImage;
 abstract class AquariumObject {
 
   final Aquarium aquarium;
-  Position position;
+  final Position position;
   double moveDuration, direction, timeSpawned;
   int animMode, animFrame;
 

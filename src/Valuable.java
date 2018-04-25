@@ -1,4 +1,4 @@
-public interface Valuable {
+interface Valuable {
 
   Position getPosition();
 
